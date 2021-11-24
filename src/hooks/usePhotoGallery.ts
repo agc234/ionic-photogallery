@@ -88,6 +88,19 @@ export function usePhotoGallery() {
         }
     }
 
+    const deletePhoto = async (photo: UserPhoto) => {
+        const newPhotos = photos.filter(p => p.filepath !== photo.filepath);
+
+        Storage.set({key: PHOTO_STORAGE, value: JSON.stringify(newPhotos)});
+
+        const filename = photo.filepath.substr(photo.filepath.lastIndexOf('/') + 1);
+        await Filesystem.deleteFile({
+            path: filename,
+            directory: Directory.Data
+        });
+        setPhotos(newPhotos);
+    };
+
     async function base64FromPath(path: string): Promise<string> {
         /**
          * Returns path as base64 string representation.
@@ -113,6 +126,7 @@ export function usePhotoGallery() {
 
     return {
         photos,
+        deletePhoto,
         takePhoto,
     };
 }
